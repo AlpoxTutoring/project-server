@@ -1,9 +1,10 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { connectDatabase } from '../models';
 
 import { getError } from './error';
 import { parsePageQuery } from './query';
 import { NODE_ENV } from '../config';
+
+import { onConnectDatabase } from '../models';
 
 export interface CustomResponseType {
     status: number;
@@ -82,7 +83,7 @@ export const createGatewayProxyHandler = (
         const res = getResponse;
 
         try {
-            await connectDatabase();
+            await onConnectDatabase();
 
             isProduction && console.log(`Lambda Request`, req);
             const response = await handler(req, res);

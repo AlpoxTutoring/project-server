@@ -1,9 +1,11 @@
-import { Request, verifyToken } from '../services';
-import User from '../models/User';
+import { Request, verifyToken, TokenPayload } from '../services';
+import { User, UserRole } from '../models';
 
 const BEARER_TOKEN_PATTERN = /^Bearer[ ]+([^ ]+)[ ]*$/i;
 
-const extractAccessToken = (authorization: string | null | undefined) => {
+const extractAccessToken = (
+    authorization: string | undefined
+): string | null => {
     if (!authorization) return null;
 
     const result = BEARER_TOKEN_PATTERN.exec(authorization);
@@ -12,14 +14,17 @@ const extractAccessToken = (authorization: string | null | undefined) => {
     return result[1];
 };
 
-export const Authorizer = async (req: Request) => {
-    const authorizationHeader: any = req.headers['Authorization'];
+export const Authorizer = async (req: Request): Promise<User> => {
+    const authorizationHeader: string | undefined =
+        req.headers['Authorization'];
     const accessToken: string | null = extractAccessToken(authorizationHeader);
 
     if (!accessToken) throw { status: 401, message: 'Invalid Bearer Token' };
 
-    const verified: any = verifyToken(accessToken);
-    const user = await User.findOne(verified?.id);
+    const verified: TokenPayload = verifyToken(accessToken);
+    const user = await User.findOne({
+        where: { id: verified.id },
+    });
 
     if (user) {
         return user;
@@ -28,42 +33,18 @@ export const Authorizer = async (req: Request) => {
     }
 };
 
-export const ifAuthorizer = async (req: Request) => {
-    const authorizationHeader: any = req.headers['Authorization'];
-    const accessToken: string | null = extractAccessToken(authorizationHeader);
-
-    if (!accessToken) return null;
-
-    const verified = verifyToken(accessToken);
-    const user = await User.findOne(verified?.id);
-
-    if (user) {
-        return user;
-    } else {
-        return null;
-    }
-};
-
-export const AdminAuthorizer = async (req: Request) => {
-    const user = await Authorizer(req);
-    const isAdmin = user?.role === 'admin';
-
-    if (isAdmin) {
-        return user;
-    } else {
-        throw { status: 401, message: 'Authorization Failure: No Permission' };
-    }
-};
-
-export const SelfAuthorizer = async (req: Request, compareUser: User) => {
+export const SelfAuthorizer = async (
+    req: Request,
+    compareUser: User
+): Promise<User> => {
     const user: User = await Authorizer(req);
 
-    if (user?.role === 'admin' || user?.id === compareUser?.id) {
+    if (user.role === UserRole.admin || user.id === compareUser.id) {
         return user;
     }
 
     throw {
         status: 401,
-        message: 'Authroization Failure: No Permission Admin',
+        message: 'Authorization Failure: No Permission Picker',
     };
 };

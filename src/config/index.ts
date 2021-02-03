@@ -32,11 +32,16 @@ const getEnvValue: getEnvValueType = (
 
 export const NODE_ENV: string = getEnvValue('NODE_ENV', 'string');
 export const JWT_SECRET: string = getEnvValue('JWT_SECRET', 'string');
-export const MYSQL = {
-    host: getEnvValue('MYSQL_HOST', 'string'),
-    user: getEnvValue('MYSQL_USER', 'string'),
-    password: getEnvValue('MYSQL_PASSWORD', 'string'),
-    database: getEnvValue('MYSQL_DATABASE', 'string'),
-    logging: getEnvValue('MYSQL_LOGGING', 'boolean'),
-    synchronize: getEnvValue('MYSQL_SYNC', 'boolean'),
+
+export type PGSQLType = {
+    host: string;
+    username: string;
+    password: string;
+    database: string;
+};
+export const PGSQL: PGSQLType = {
+    host: getEnvValue('POSTGRESQL_HOST', 'string'),
+    username: getEnvValue('POSTGRESQL_USER', 'string'),
+    password: getEnvValue('POSTGRESQL_PASSWORD', 'string'),
+    database: getEnvValue('POSTGRESQL_DATABASE', 'string'),
 };

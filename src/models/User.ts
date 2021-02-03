@@ -1,66 +1,71 @@
 import {
-    Entity,
-    PrimaryGeneratedColumn,
+    Table,
+    Model,
     Column,
-    BaseEntity,
-    Generated,
-    OneToMany,
-} from 'typeorm';
+    CreatedAt,
+    UpdatedAt,
+    AutoIncrement,
+    PrimaryKey,
+    DataType,
+    Default,
+    DeletedAt,
+    HasMany,
+} from 'sequelize-typescript';
+
+import { nanoid } from 'nanoid';
+import { Board } from '.';
 import { signToken } from '../services';
 
-import Board from './Board';
-
-declare global {
-    namespace Express {
-        interface Request {
-            user: User;
-        }
-    }
+export enum UserRole {
+    user = 'USER',
+    admin = 'ADMIN',
 }
-
-export enum Role {
-    USER = 'user',
-    ADMIN = 'admin',
-}
-
-@Entity({ name: 'USER' })
-export default class User extends BaseEntity {
-    @PrimaryGeneratedColumn('uuid')
+@Table({
+    tableName: 'user',
+    timestamps: true,
+})
+export class User extends Model {
+    @Default(() => nanoid())
+    @PrimaryKey
+    @Column
     public id: string;
 
-    @Column({ type: 'text', nullable: true })
+    @Column
+    public nickname: string;
+
+    @Column
     public email: string;
 
-    @Column({ nullable: false, type: 'varchar', length: '10' })
-    public name: string;
-
-    @Column()
+    @Column(DataType.TEXT)
     public profile: string;
 
-    @Column({ nullable: true })
-    public socialId: string;
+    @Column(DataType.TEXT)
+    hash: string;
 
-    @Column({ type: 'enum', enum: Role, default: Role.USER })
-    public role: Role;
+    @Column(DataType.TEXT)
+    salt: string;
 
-    @Column({ nullable: true, select: false })
-    public hash: string;
+    @Default(UserRole.user)
+    @Column(DataType.ENUM(UserRole.user, UserRole.admin))
+    public role: UserRole;
 
-    @Column({ nullable: true, select: false })
-    public salt: string;
+    // @HasMany((type) => Board)
+    // public boards: Board[];
 
-    @Column({ nullable: true })
-    @Generated('uuid')
-    public refreshToken: string;
+    @CreatedAt
+    public createdAt: Date;
 
-    @OneToMany((type) => Board, (board) => board.user)
-    public boards: Board[];
+    @UpdatedAt
+    public updatedAt: Date;
+
+    @DeletedAt
+    public deletedAt: Date;
 
     public get accessToken() {
         return signToken({
             id: this.id,
             email: this.email,
-            name: this.name,
+            nickname: this.nickname,
             profile: this.profile,
         });
     }

@@ -1,50 +1,57 @@
 import {
-    Entity,
-    PrimaryGeneratedColumn,
+    Table,
+    Model,
     Column,
-    BaseEntity,
-    ManyToOne,
-    ManyToMany,
-    JoinTable,
-    CreateDateColumn,
-    DeleteDateColumn,
-    OneToMany,
-} from 'typeorm';
+    PrimaryKey,
+    DataType,
+    Default,
+    BelongsTo,
+    CreatedAt,
+    UpdatedAt,
+    DeletedAt,
+    ForeignKey,
+} from 'sequelize-typescript';
+import { nanoid } from 'nanoid';
 
-import User from './User';
-import BoardCategory from './BoardCategory';
-import BoardTag from './BoardTag';
-import BoardComment from './BoardComment';
+export enum ContentType {
+    html = 'HTML',
+    markdown = 'MARKDOWN',
+}
 
-@Entity({ name: 'BOARD' })
-export default class Board extends BaseEntity {
-    @PrimaryGeneratedColumn('uuid')
+import { User } from '.';
+
+@Table({ tableName: 'board' })
+export class Board extends Model {
+    @Default(() => nanoid())
+    @PrimaryKey
+    @Column
     public id: string;
 
-    @Column({ type: 'text' })
+    @Column(DataType.TEXT)
     public title: string;
 
-    @Column({ type: 'text' })
+    @Column(DataType.TEXT)
+    public subtitle: string;
+
+    @Column(DataType.TEXT)
     public content: string;
 
-    @ManyToOne((type) => User, (user) => user.boards, { eager: true })
-    public user: User;
+    @Column(DataType.ENUM(ContentType.html, ContentType.markdown))
+    public contentType: string;
 
-    @ManyToOne((type) => BoardCategory, (category) => category.boards, {
-        eager: true,
-    })
-    public category: BoardCategory;
+    // @ForeignKey(() => User)
+    // @Column
+    // public userId: number;
 
-    @OneToMany((type) => BoardComment, (comment) => comment.board)
-    public comments: BoardComment[];
+    // @BelongsTo(() => User)
+    // public user: User;
 
-    @ManyToMany((type) => BoardTag, (tag) => tag.boards, { eager: true })
-    @JoinTable({ name: 'BOARD_TAG_RELATION' })
-    public tags: BoardTag[];
-
-    @DeleteDateColumn()
-    public deletedAt: Date;
-
-    @CreateDateColumn()
+    @CreatedAt
     public createdAt: Date;
+
+    @UpdatedAt
+    public updatedAt: Date;
+
+    @DeletedAt
+    public deletedAt: Date;
 }

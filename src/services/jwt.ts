@@ -1,24 +1,25 @@
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../config';
+import { User } from '../models';
 
 interface TokenPayload {
     id: string;
     email: string;
-    name: string;
-    profile: string;
+    nickname: string;
+    profile?: string;
 }
 
-const signToken = (userPayload: TokenPayload) => {
+const signToken = (userPayload: TokenPayload): string => {
     const token = jwt.sign(userPayload, JWT_SECRET);
     return token;
 };
 
-const signMailToken = (userPayload: TokenPayload) => {
+const signMailToken = (userPayload: TokenPayload): string => {
     const token = jwt.sign(userPayload, JWT_SECRET, { expiresIn: 600 });
     return token;
 };
 
-const verifyToken = (token: string) => {
+const verifyToken = (token: string): TokenPayload => {
     try {
         const payload = jwt.verify(token, JWT_SECRET) as TokenPayload;
         return payload;

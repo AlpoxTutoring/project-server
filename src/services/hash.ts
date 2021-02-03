@@ -2,7 +2,12 @@ import * as bcrypt from 'bcryptjs';
 
 const SALT_ROUNDS: number = 14;
 
-export const createPassword = async (password: string) => {
+type Password = {
+    hash: string;
+    salt: string;
+};
+
+export const createPassword = async (password: string): Promise<Password> => {
     const salt = await bcrypt.genSalt(SALT_ROUNDS);
     const hash = await bcrypt.hash(password, salt);
 
