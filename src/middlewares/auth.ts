@@ -48,3 +48,22 @@ export const SelfAuthorizer = async (
         message: 'Authorization Failure: No Permission Picker',
     };
 };
+
+export const ifAuthorizer = async (req: Request): Promise<User | null> => {
+    const authorizationHeader: string | undefined =
+        req.headers['Authorization'];
+    const accessToken: string | null = extractAccessToken(authorizationHeader);
+
+    if (!accessToken) throw { status: 401, message: 'Invalid Bearer Token' };
+
+    const verified: TokenPayload = verifyToken(accessToken);
+    const user = await User.findOne({
+        where: { id: verified.id },
+    });
+
+    if (user) {
+        return user;
+    } else {
+        return null;
+    }
+};

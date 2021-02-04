@@ -39,12 +39,12 @@ export class Board extends Model {
     @Column(DataType.ENUM(ContentType.html, ContentType.markdown))
     public contentType: string;
 
-    // @ForeignKey(() => User)
-    // @Column
-    // public userId: number;
+    @ForeignKey(() => User)
+    @Column
+    public userId: number;
 
-    // @BelongsTo(() => User)
-    // public user: User;
+    @BelongsTo(() => User, 'id')
+    public user: User;
 
     @CreatedAt
     public createdAt: Date;

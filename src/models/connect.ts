@@ -15,7 +15,7 @@ export const onConnectDatabase = async () => {
                 dialect: 'postgres',
                 host: PGSQL.host,
                 models: [User, Board],
-                // sync: { force: true },
+                sync: { force: true },
             }
         );
     }
@@ -23,11 +23,8 @@ export const onConnectDatabase = async () => {
     try {
         await sequelize.authenticate();
 
-        await Board.sync({ force: true });
-        await User.sync({ force: true });
-
-        await Board.belongsTo(User);
-        await User.hasMany(Board);
+        // await User.sync({ force: true });
+        // await Board.sync({ force: true });
 
         await console.log(`Success`, `connecting database!`);
     } catch (error) {

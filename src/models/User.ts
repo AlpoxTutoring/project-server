@@ -49,8 +49,8 @@ export class User extends Model {
     @Column(DataType.ENUM(UserRole.user, UserRole.admin))
     public role: UserRole;
 
-    // @HasMany((type) => Board)
-    // public boards: Board[];
+    @HasMany((type) => Board, 'id')
+    public boards: Board[];
 
     @CreatedAt
     public createdAt: Date;
